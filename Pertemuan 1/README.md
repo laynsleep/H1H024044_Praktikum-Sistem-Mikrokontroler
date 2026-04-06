@@ -1,4 +1,4 @@
-### Pertanyaan 1A
+### Pertanyaan 1A <hr>
 1. Pada kondisi apa program masuk ke blok if?
 
     >Ketika nilai timeDelay kurang dari sama dengan 100
@@ -15,11 +15,11 @@
 ubah menjadi LED tidak langsung reset → tetapi berubah dari cepat → sedang →
 mati dan berikan penjelasan disetiap baris kode nya dalam bentuk README.md!
 
-```c
-print("Hello World!");
-```
+    ```c
+    print("Hello World!");
+    ```
 
-### Pertanyaan 2A
+### Pertanyaan 2A <hr>
 1. Gambarkan rangkaian schematic 5 LED running yang digunakan pada percobaan!
 
     ![skematik](#)
