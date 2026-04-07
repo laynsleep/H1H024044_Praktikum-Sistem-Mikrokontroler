@@ -16,7 +16,35 @@ ubah menjadi LED tidak langsung reset → tetapi berubah dari cepat → sedang �
 mati dan berikan penjelasan disetiap baris kode nya dalam bentuk README.md!
 
     ```c
-    print("Hello World!");
+    const int ledPin = 6;        // variable constant dengan nilai pin digital 6
+    int timeDelay = 1000;        // inisial waktu delay
+    bool delayState = false;     // kondisi untuk menambahkan atau mengurangi delay
+    
+    void setup() {
+        pinMode(ledPin, OUTPUT);    // pin digital 6 diset ke mode OUTPUT
+        Serial.begin(9600);         // menyalakan serial untuk alat bantu debugging
+    }
+    
+    void loop() {
+      digitalWrite(ledPin, HIGH);   // Nyalakan LED
+      delay(timeDelay);             // Memberikan delay selama nilai dari timeDelay
+      
+      digitalWrite(ledPin, LOW);    // Matikan LED
+      delay(timeDelay);
+      
+      if (delayState) {             // Kondisi apabila state delay = true
+        timeDelay += 100;           // maka tambahkan delay sebanyak 100.
+        if (timeDelay >= 1000) {    // Jika timeDelay memiliki nilai lebih dari sama dengan 1000,
+          delayState = false;       // matikan delayState
+          delay(3000);              // lalu beri jeda selama 3 detik sebagai gambaran reset/mati
+        }
+      } else if (!delayState) {     // Kondisi apabila state delay = false
+        timeDelay -= 100;           // maka kurangi delay sebanyak 100.
+        if (timeDelay <= 100) delayState = true;    // Jika timeDelay kurang dari 100, nyalakan delayState.
+      }
+    
+      Serial.println(timeDelay);    // untuk print nilai timeDelay ke serial
+    }
     ```
 
 ### Pertanyaan 2A <hr>
@@ -37,5 +65,32 @@ mati dan berikan penjelasan disetiap baris kode nya dalam bentuk README.md!
 5. Buatkan program agar LED menyala tiga LED kanan dan tiga LED kiri secara bergantian dan berikan penjelasan disetiap baris kode nya dalam bentuk README.md!
 
     ```c
-    print("Hello World!");
+    int timer = 100;    // variable delay.
+
+    void setup() {
+      for (int ledPin = 2; ledPin < 8; ledPin++) {    // pengulangan untuk otomasi set mode pin.
+      	pinMode(ledPin, OUTPUT);
+      }
+    }
+    void loop() {
+      for (int ledPin = 2; ledPin <= 4; ledPin++) {   // pengulangan untuk menyalakan 3 led sebelah kanan.
+        digitalWrite(ledPin, HIGH);
+      }
+      
+      delay(timer);                                   // delay selama nilai timer.
+      
+      for (int ledPin = 2; ledPin <= 4; ledPin++) {   // pengulangan untuk mematikan 3 led sebelah kanan.
+        digitalWrite(ledPin, LOW);
+      }
+      
+      for (int ledPin = 7; ledPin >= 5; ledPin--) {   // pengulangan untuk menyalakan 3 led sebelah kiri.
+        digitalWrite(ledPin, HIGH);
+      }
+      
+      delay(timer);                                   // delay selama nilai timer.
+      
+      for (int ledPin = 7; ledPin >= 5; ledPin--) {   // pengulangan untuk mematikan 3 led sebelah kiri.
+        digitalWrite(ledPin, LOW);
+      }
+    }
     ```
