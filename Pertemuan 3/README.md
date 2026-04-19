@@ -67,11 +67,11 @@
 ### 3.6.4 Percobaan 3B<hr>
 1. Jelaskan bagaimana cara kerja komunikasi I2C antara Arduino dan LCD pada rangkaian tersebut!
 
-    >test
+    >Dua perangkat saling terhubung sebagai Master (Arduino) dan Slave (LCD). Arduino akan memberikan perintah untuk dijalankan oleh LCD dan LCD akan menerima perintah tersebut dan me-acknowledgenya melewati jalur SDA. Di dalam program ditulis alamat memori dari LCD adalah 0x20, hal ini diperlukan agar hanya LCD tersebut saja yang dapat menerima data tersebut.
 
 2. Apakah pin potensiometer harus seperti itu? Jelaskan yang terjadi apabila pin kiri dan pin kanan tertukar!
 
-    >test
+    >Pin GND dan 5V bisa di tukar posisinya namun akibatnya range potensiometer yang awalnya dari kiri-ke-kanan (0-1023) menjadi terbalik dari kanan-ke-kiri (1023-0). Intinya pin yang dihubungi GND akan menjadi nilai 0 pada potensiometer dan sebaliknya. Akan tetapi pin analog hanya dapat dihubungkan pada pin tengah potensiometer.
 
 3. Modifikasi program dengan menggabungkan antara UART dan I2C (keduanya sebagai output) sehingga:
 - Data tidak hanya ditampilkan di LCD tetapi juga di Serial Monitor
