@@ -74,20 +74,92 @@
     >Pin GND dan 5V bisa di tukar posisinya namun akibatnya range potensiometer yang awalnya dari kiri-ke-kanan (0-1023) menjadi terbalik dari kanan-ke-kiri (1023-0). Intinya pin yang dihubungi GND akan menjadi nilai 0 pada potensiometer dan sebaliknya. Akan tetapi pin analog hanya dapat dihubungkan pada pin tengah potensiometer.
 
 3. Modifikasi program dengan menggabungkan antara UART dan I2C (keduanya sebagai output) sehingga:
-- Data tidak hanya ditampilkan di LCD tetapi juga di Serial Monitor
-- Adapun data yang ditampilkan pada Serial Monitor sesuai dengan table berikut:
-    <table>
-      <tr>
-        <td>ADC: 0</td>
-        <td>Volt: 0.00 V</td>
-        <td>Persen: 0%</td>
-      </tr>
-    </table>
-    Tampilan jika potensiometer dalam kondisi diputar paling kiri
-- ADC: 0 0% | setCursor(0, 0) dan Bar (level) | setCursor(0, 1)
-- Berikan penjelasan disetiap baris kode nya dalam bentuk README.md!
+    - Data tidak hanya ditampilkan di LCD tetapi juga di Serial Monitor
+    - Adapun data yang ditampilkan pada Serial Monitor sesuai dengan table berikut:
+        <table>
+          <tr>
+            <td>ADC: 0</td>
+            <td>Volt: 0.00 V</td>
+            <td>Persen: 0%</td>
+          </tr>
+        </table>
+        Tampilan jika potensiometer dalam kondisi diputar paling kiri
+    - ADC: 0 0% | setCursor(0, 0) dan Bar (level) | setCursor(0, 1)
+    - Berikan penjelasan disetiap baris kode nya dalam bentuk README.md!
 
     ```cpp
+    #include <LiquidCrystal_I2C.h>
+    
+    // Ganti alamat jika perlu (0x27 / 0x20)
+    LiquidCrystal_I2C lcd(0x20, 16, 2);    // membaca alamat memori 0x20 sebagai lcd
+    
+    const int pinPot = A0;   // set pin potensiometer ke A0
+    
+    void setup() {
+      Serial.begin(9600);    // Jalankan serial monitor dengan baud rate 9600
+    
+      lcd.init();            // inisialisasi lcd (membersihkan layar, set cursor ke home)
+      lcd.backlight();       // menyalakan lampu belakang pada lcd
+    }
+    
+    void loop() {
+      // inisialisasi variable nilai dengan value dari pinPot
+      int nilai = analogRead(pinPot);
+
+      // menghitung persentase dari nilai ADC
+      int persentase = (float)nilai / 1023 * 100;
+
+      // menghitung nilai volt
+      float volt = nilai * (5.0 / 1023.0);
+    
+      // Mapping ke bar (0-16)
+      int panjangBar = map(nilai, 0, 1023, 0, 16);
+    
+      // Tampilkan ke Serial
+
+      // print "Nilai ADC : " dan nilai ke serial
+      Serial.print("Nilai ADC : ");
+      Serial.print(nilai);
+      Serial.print("   \t");    // format sel kolom seperti tab
+
+      // print "Persentase : " dan persentase ke serial
+      Serial.print("Persentase : ");
+      Serial.print(persentase);
+      Serial.print("%");
+      Serial.print("   \t");    // format sel kolom seperti tab
+
+      // print "Nilai volt : " dan  volt ke serial
+      Serial.print("Nilai Volt : ");
+      Serial.println(volt);
+    
+      // Baris 1: nilai ADC
+      lcd.setCursor(0, 0);
+      lcd.print("ADC: ");
+      lcd.print(nilai);
+      lcd.print("   "); // clear sisa
+
+      // set kursor ke baris 12 kolom 0
+      lcd.setCursor(12, 0);
+
+      // print persentase ke dalam lcd
+      lcd.print(persentase);
+      lcd.print("%");
+      lcd.print("  ");
+    
+      // Baris 2: bar
+      lcd.setCursor(0, 1);
+
+      // pengulangan untuk print bar
+      for (int i = 0; i < 16; i++) {
+        if (i < panjangBar) {
+          lcd.print((char)255);
+        } else {
+          lcd.print(" ");
+        }
+      }
+    
+      delay(200);
+    }
     ```
 
 4. Lengkapi table berikut berdasarkan pengamatan pada Serial Monitor
@@ -100,27 +172,27 @@
       </tr>
       <tr>
         <td>1</td>
-        <td></td>
-        <td></td>
+        <td>0.00</td>
+        <td>0%</td>
       </tr>
       <tr>
         <td>21</td>
-        <td></td>
-        <td></td>
+        <td>0.10</td>
+        <td>2%</td>
       </tr>
       <tr>
         <td>49</td>
-        <td></td>
-        <td></td>
+        <td>0.24</td>
+        <td>4%</td>
       </tr>
       <tr>
         <td>74</td>
-        <td></td>
-        <td></td>
+        <td>0.36</td>
+        <td>7%</td>
       </tr>
       <tr>
         <td>96</td>
-        <td></td>
-        <td></td>
+        <td>0.47</td>
+        <td>9%</td>
       </tr>
     </table>
