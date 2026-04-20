@@ -6,6 +6,7 @@
 </div>
 
 ![dok_i2c](dok_i2c.jpg)
+![gif_i2c](dok_i2c.gif)
 
 #  Pertanyaan Praktikum
 ###  3.5.4 Percobaan 3A<hr>
