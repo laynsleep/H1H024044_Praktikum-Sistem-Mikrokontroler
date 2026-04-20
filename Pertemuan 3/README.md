@@ -1,3 +1,12 @@
+#  Dokumentasi
+
+<div>
+    <img src="dok_serialmonitor_on.jpg" width="500">
+    <img src="dok_serialmonitor_off.jpg" width="500">
+</div>
+
+![dok_i2c](dok_i2c.jpg)
+
 #  Pertanyaan Praktikum
 ###  3.5.4 Percobaan 3A<hr>
 1. Jelaskan proses dari input keyboard hingga LED menyala/mati!
