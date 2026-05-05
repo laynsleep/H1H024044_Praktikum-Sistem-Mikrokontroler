@@ -12,7 +12,7 @@
 ###  Percobaan 1 (4A)<hr>
 1. Apa fungsi perintah analogRead() pada rangkaian praktikum ini?
 
-    >Fungsi tersebut digunakan untuk membaca nilai analog dari sebuah potensiometer, sehingga parameter fungsi tersebut mengarah ke pin potensio yaitu A0.
+    >Fungsi tersebut digunakan untuk membaca nilai analog dari sebuah potensiometer dan dikonversi menjadi digital, sehingga parameter fungsi tersebut mengarah ke pin potensio yaitu A0.
 
 2. Mengapa diperlukan fungsi map() dalam program tersebut?
 
