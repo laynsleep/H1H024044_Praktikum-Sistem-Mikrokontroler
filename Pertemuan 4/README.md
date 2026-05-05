@@ -1,12 +1,12 @@
 #  Dokumentasi
 
-<div>
-    <img src="dok_serialmonitor_on.jpg" width="500">
-    <img src="dok_serialmonitor_off.jpg" width="500">
+<div align="center">
+    <img src="dok_percobaan1.gif" height="400">
+    <img src="dok_percobaan1.jpg" height="400">
+    <img src="dok_percobaan2.jpg" height="400">
+    <br>
+    <img src="dok_percobaan2.gif" width="600">
 </div>
-
-![dok_i2c](dok_i2c.jpg)
-![gif_i2c](dok_i2c.gif)
 
 #  Pertanyaan Praktikum
 ###  Percobaan 1 (4A)<hr>
