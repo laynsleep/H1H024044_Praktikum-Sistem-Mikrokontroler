@@ -1,54 +1,64 @@
-#include <Servo.h> // library untuk servo motor
-
-Servo myservo; // membuat objek servo
-
-// ===================== PIN SETUP =====================
-// Tentukan pin yang digunakan untuk potensiometer dan servo
-const int potensioPin = A0;  // isi pin analog input (contoh A0)
-const int servoPin = 9;      // isi pin digital untuk servo (PWM)
-
-// ===================== VARIABEL =====================
-// Variabel untuk menyimpan data ADC dan sudut servo
-int pos = 0; // isi dengan tipe data dan inisialisasi awal
-int val = 0; // isi dengan tipe data dan inisialisasi awal
-
+#include <Arduino_FreeRTOS.h>
+void TaskBlink1( void *pvParameters );
+void TaskBlink2( void *pvParameters );
+void Taskprint( void *pvParameters );
 void setup() {
-
-  // Hubungkan servo ke pin yang sudah ditentukan
-  myservo.attach(servoPin); // isi dengan servoPin
-
-  // Aktifkan komunikasi serial untuk monitoring
-  Serial.begin(9600); // isi baud rate (contoh 9600)
-
+	// initialize serial communication at 9600 bits per second:
+	Serial.begin(9600);
+	xTaskCreate(
+	TaskBlink1
+	, "task1"
+	, 128
+	, NULL
+	, 1
+	, NULL );
+	xTaskCreate(
+	TaskBlink2
+	, "task2"
+	, 128
+	, NULL
+	, 1
+	, NULL );
+	xTaskCreate(
+	Taskprint
+	, "task3"
+	, 128
+	, NULL
+	, 1
+	, NULL );
+	vTaskStartScheduler();
 }
-
-void loop() {
-
-  // ===================== PEMBACAAN ADC =====================
-  // Baca nilai dari potensiometer (rentang 0–1023)
-  val = analogRead(potensioPin); // isi dengan potensioPin
-
-  // ===================== KONVERSI DATA =====================
-  // Ubah nilai ADC menjadi sudut servo (0–180 derajat)
-  pos = map(val,
-             0,   	// isi nilai minimum ADC
-             1023,  // isi nilai maksimum ADC
-             0,   	// isi sudut minimum servo
-             180);  // isi sudut maksimum servo
-
-  // ===================== OUTPUT SERVO =====================
-  // Gerakkan servo sesuai hasil mapping
-  myservo.write(pos); // isi dengan variabel sudut
-
-  // ===================== MONITORING DATA =====================
-  // Tampilkan data ADC dan sudut servo ke Serial Monitor
-  Serial.print("ADC Potensio: ");
-  Serial.print(val); // isi variabel ADC
-
-  Serial.print(" | Sudut Servo: ");
-  Serial.println(pos); // isi variabel sudut
-
-  // ===================== STABILISASI =====================
-  // Delay untuk memberi waktu servo bergerak stabil
-  delay(100); // isi dalam milidetik
+void loop()
+{
+}
+void TaskBlink1(void *pvParameters) {
+	pinMode(8, OUTPUT);
+	while(1)
+	{
+		Serial.println("Task1");
+		digitalWrite(8, HIGH);
+		vTaskDelay( 200 / portTICK_PERIOD_MS );
+		digitalWrite(8, LOW);
+		vTaskDelay( 200 / portTICK_PERIOD_MS );
+	}
+}
+void TaskBlink2(void *pvParameters)
+{
+	pinMode(7, OUTPUT);
+	while(1)
+	{
+		Serial.println("Task2");
+		digitalWrite(7, HIGH);
+		vTaskDelay( 300 / portTICK_PERIOD_MS );
+		digitalWrite(7, LOW);
+		vTaskDelay( 300 / portTICK_PERIOD_MS );
+	}
+}
+void Taskprint(void *pvParameters) {
+	int counter = 0;
+	while(1)
+	{
+		counter++;
+		Serial.println(counter);
+		vTaskDelay(500 / portTICK_PERIOD_MS); }
 }
