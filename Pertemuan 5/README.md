@@ -1,10 +1,9 @@
 #  Dokumentasi
 
 <div align="center">
-    <img src="dok_percobaan1.gif" height="400">
-    <img src="dok_percobaan1.jpg" height="400">
+    <img src="dok_percobaan1.gif" width="400">
+    <img src="dok_percobaan1.jpg" width="400">
     <img src="dok_percobaan2.jpg" height="400">
-    <br>
     <img src="dok_percobaan2.gif" width="600">
 </div>
 
