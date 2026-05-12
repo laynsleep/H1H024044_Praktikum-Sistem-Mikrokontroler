@@ -9,71 +9,196 @@
 </div>
 
 #  Pertanyaan Praktikum
-###  Percobaan 1 (4A)<hr>
-1. Apa fungsi perintah analogRead() pada rangkaian praktikum ini?
+###  Percobaan 1 (5A)<hr>
+1. Apakah ketiga task berjalan secara bersamaan atau bergantian? Jelaskan mekanismenya!
 
-    >Fungsi tersebut digunakan untuk membaca nilai analog dari sebuah potensiometer yang dikonversi menjadi digital (ADC), sehingga parameter fungsi tersebut mengarah ke pin potensio yaitu A0.
+    >Ketiga task pada program FreeRTOS berjalan secara bergantian (concurrent), bukan benar-benar paralel. Arduino Uno hanya memiliki satu inti prosesor sehingga CPU mengeksekusi task satu per satu dengan sangat cepat. Pergantian task diatur oleh scheduler FreeRTOS berdasarkan prioritas dan waktu delay yang diberikan menggunakan fungsi vTaskDelay().
+    >
+    >Pada program:
+    >
+    > -TaskBlink1 mengontrol LED pertama.
+    >
+    >
+    > -TaskBlink2 mengontrol LED kedua.
+    >
+    > -Taskprint menampilkan counter pada Serial Monitor.
+    >
+    >Ketika suatu task menjalankan vTaskDelay(), scheduler akan memberikan kesempatan kepada task lain untuk dieksekusi. Mekanisme ini menciptakan efek multitasking sehingga seluruh task terlihat berjalan secara bersamaan.
 
-2. Mengapa diperlukan fungsi map() dalam program tersebut?
+2. Bagaimana cara menambahkan task keempat? Jelaskan langkahnya!
 
-    >Fungsi map() mempermudah kita dalam mengkonversi antar rentang. Misal 0-1023 merupakan 0%-100% dan 0°-180° juga merupakan 0%-100%, maka ketika nilai input pada map yaitu varibel val berubah, outputnya (sudut servo) akan mengikuti rentang (%) dari input tersebut.
+    >Untuk menambahkan task keempat pada program FreeRTOS, pertama perlu dibuat sebuah fungsi baru yang akan dijadikan task tambahan. Fungsi tersebut berisi proses yang ingin dijalankan, misalnya menampilkan teks pada Serial Monitor atau mengontrol perangkat lain seperti sensor dan LED. Setelah fungsi task dibuat, nama fungsi tersebut perlu dideklarasikan pada bagian atas program agar dapat dikenali oleh compiler.
+    >
+    >Langkah berikutnya adalah menambahkan fungsi xTaskCreate() di dalam setup(). Fungsi ini digunakan untuk mendaftarkan task baru ke scheduler FreeRTOS. Pada bagian ini ditentukan nama task, ukuran memori stack, prioritas task, dan parameter lainnya. Setelah task berhasil dibuat, scheduler FreeRTOS akan secara otomatis mengatur eksekusi task keempat bersama task-task lain yang sudah ada.
+    >
+    >Dengan penambahan task baru, sistem dapat menjalankan lebih banyak proses secara concurrent tanpa harus mengubah struktur utama program. Hal ini menunjukkan bahwa RTOS memiliki fleksibilitas tinggi dalam pengembangan sistem multitasking pada mikrokontroler.
 
-3. Modifikasi program berikut agar servo hanya bergerak dalam rentang 30° hingga 150°, meskipun potensiometer tetap memiliki rentang ADC 0–1023. Jelaskan program pada file README.md
+3. Modifikasilah program dengan menambah sensor (misalnya potensiometer), lalu gunakan nilainya untuk mengontrol kecepatan LED! Bagaimana hasilnya? Jelaskan program pada file README.md.
 
     ```cpp
-    ...
+    #include <Arduino_FreeRTOS.h>
+    
+    // Deklarasi task LED
+    void TaskLED(void *pvParameters);
+    
+    void setup() {
+    
+      // Memulai komunikasi serial
+      Serial.begin(9600);
+    
+      // Membuat task LED
+      xTaskCreate(
+        TaskLED,   // Nama fungsi task
+        "LED",     // Nama task
+        128,       // Ukuran stack
+        NULL,      // Parameter task
+        1,         // Prioritas task
+        NULL       // Task handle
+      );
+    }
+    
     void loop() {
+      // Loop dikosongkan karena semua proses
+      // dijalankan oleh FreeRTOS
+    }
     
-      // ===================== PEMBACAAN ADC =====================
-      // Baca nilai dari potensiometer (rentang 0–1023)
-      val = analogRead(potensioPin); // isi dengan potensioPin
+    void TaskLED(void *pvParameters) {
     
-      // ===================== KONVERSI DATA =====================
-      // Ubah nilai ADC menjadi sudut servo (0–180 derajat)
-      // Untuk mengubah rentang servo menjadi 30° - 150°, cukup ubah saja sudut minimum dan maksimum servo pada fungsi map().
-      // Sehingga meskipun nilai input dari ADC masih dalam rentang 0-1023, map masih bisa mengkonversi rentang tersebut menjadi sudut servo dalam rentang 30°-150°.
-      pos = map(val,
-                 0,   	// isi nilai minimum ADC
-                 1023,  // isi nilai maksimum ADC
-                 30,   	// isi sudut minimum servo  (ubah dari 0° menjadi 30°)
-                 150);  // isi sudut maksimum servo (ubah dari 180° menjadi 150°)
-    ...
+      // Pin 8 digunakan sebagai output LED
+      pinMode(8, OUTPUT);
+    
+      while(1) {
+    
+        // Membaca nilai analog dari potensiometer pada pin A0
+        int sensor = analogRead(A0);
+    
+        // Mengubah nilai sensor menjadi delay LED
+        // Semakin besar nilai sensor, semakin lambat kedipan LED
+        int delayLED = map(sensor, 0, 1023, 100, 1000);
+    
+        // Menyalakan LED
+        digitalWrite(8, HIGH);
+    
+        // Delay sesuai nilai potensiometer
+        vTaskDelay(delayLED / portTICK_PERIOD_MS);
+    
+        // Mematikan LED
+        digitalWrite(8, LOW);
+    
+        // Delay kembali
+        vTaskDelay(delayLED / portTICK_PERIOD_MS);
+    
+        // Menampilkan nilai delay ke Serial Monitor
+        Serial.println(delayLED);
+      }
     }
     ```
 
-### Percobaan 2 (4B)<hr>
-1. Jelaskan mengapa LED dapat diatur kecerahannya menggunakan fungsi analogWrite()!
+### Percobaan 2 (5B)<hr>
+1. Apakah kedua task berjalan secara bersamaan atau bergantian? Jelaskan mekanismenya!
 
-    >Karena fungsi tersebut menghasilkan sinyal PWM yang membuat LED menyala dan mati dengan cepat dalam siklus waktu tertentu. Seiring potensio dinaikkan, lebar pulsa juga akan terus melebar dan membuat LED tampak lebih terang.
+    >Kedua task pada program tersebut berjalan secara bergantian (concurrent), bukan benar-benar paralel. Hal ini karena Arduino Uno hanya memiliki satu inti prosesor sehingga task dieksekusi satu per satu oleh CPU. Namun, FreeRTOS menggunakan scheduler untuk mengatur pergantian task dengan sangat cepat sehingga task terlihat berjalan secara bersamaan.
+    >
+    >Pada program, task read_data bertugas mengirim data temperatur dan humidity ke queue menggunakan xQueueSend(). Sementara itu, task display bertugas menerima data dari queue menggunakan xQueueReceive() lalu menampilkannya pada Serial Monitor. Ketika task read_data memasuki delay menggunakan vTaskDelay(100), scheduler akan memberikan kesempatan kepada task display untuk berjalan. Mekanisme inilah yang membuat kedua task dapat bekerja secara teratur dan responsif.
 
-2. Apa hubungan antara nilai ADC (0–1023) dan nilai PWM (0–255)?
+2.  Apakah program ini berpotensi mengalami race condition? Jelaskan!
 
-    >ADC dan PWM sama-sama menggunakan binary digit, nilai ADC merupakan 8-bit sedangkan PWM menggunakan 10-bit. Nilai PWM merupakan hasil dari pembagian nilai ADC, yaitu ADC / 4. Sehingga nilai ADC yang lebih besar akan menghasilkan duty cycle yang lebih besar.
+    >Program ini memiliki kemungkinan race condition yang sangat kecil karena komunikasi antar-task menggunakan queue FreeRTOS. Queue berfungsi sebagai media pertukaran data yang aman sehingga task tidak mengakses data yang sama secara langsung pada waktu bersamaan.
+    >
+    >Pada program ini, task read_data hanya mengirim data ke queue, sedangkan task display hanya menerima data dari queue. Sinkronisasi pengiriman dan penerimaan data sudah diatur oleh FreeRTOS sehingga konflik akses data dapat dihindari. Oleh karena itu, penggunaan queue jauh lebih aman dibandingkan penggunaan variabel global tanpa mekanisme sinkronisasi.
+    >
+    >Race condition biasanya terjadi apabila beberapa task membaca dan menulis variabel yang sama secara bersamaan tanpa protection seperti mutex atau semaphore. Karena program ini menggunakan queue, risiko tersebut dapat diminimalkan.
 
-3. Modifikasilah program berikut agar LED hanya menyala pada rentang kecerahan sedang, yaitu hanya ketika nilai PWM berada pada rentang 50 sampai 200. Jelaskan program pada file README.md.
+3. Modifikasilah program dengan menggunakan sensor DHT sesungguhnya sehingga informasi yang ditampilkan dinamis. Bagaimana hasilnya? Jelaskan program pada file README.md.
     ```cpp
-    ...
+    #include <Arduino_FreeRTOS.h>
+    #include <queue.h>
+    #include <DHT.h>
+    
+    // Menentukan pin dan tipe sensor DHT
+    #define DHTPIN 2
+    #define DHTTYPE DHT11
+    
+    // Membuat objek DHT
+    DHT dht(DHTPIN, DHTTYPE);
+    
+    // Struktur data queue
+    struct readings{
+      float temp;
+      float h;
+    };
+    
+    // Handle queue
+    QueueHandle_t my_queue;
+    
+    // Deklarasi task
+    void read_data(void *pvParameters);
+    void display(void *pvParameters);
+    
+    void setup() {
+    
+      // Memulai serial monitor
+      Serial.begin(9600);
+    
+      // Memulai sensor DHT
+      dht.begin();
+    
+      // Membuat queue
+      my_queue = xQueueCreate(1, sizeof(struct readings));
+    
+      // Membuat task pembaca sensor
+      xTaskCreate(read_data, "read sensors", 128, NULL, 1, NULL);
+    
+      // Membuat task display
+      xTaskCreate(display, "display", 128, NULL, 1, NULL);
+    }
+    
     void loop() {
-
-      // ===================== PEMBACAAN SENSOR =====================
-      // Baca nilai analog dari potensiometer (rentang 0–1023)
-      nilaiADC = analogRead(potPin); // isi dengan potPin
+      // Loop dikosongkan karena seluruh proses
+      // dijalankan oleh FreeRTOS
+    }
     
-      // ===================== PEMROSESAN DATA (SCALING) =====================
-      // Ubah nilai ADC (0–1023) menjadi nilai PWM (0–255)
-      pwm = map(nilaiADC,
-                0,   // isi nilai minimum ADC
-                1023,   // isi nilai maksimum ADC
-                0,   // isi PWM minimum
-                255);  // isi PWM maksimum
+    // Task membaca data sensor
+    void read_data(void *pvParameters){
     
-      // ===================== OUTPUT PWM =====================
-      // Kirim sinyal PWM ke LED (mengatur kecerahan)
-      // Untuk menyalakan LED ketika PWM dalam rentang 50-200, gunakan percabangan
-      if (pwm <= 200 && pwm >=50) // Ketika pwm == 50-200
-      	analogWrite(ledPin, pwm); // Nyalakan LED dengan nilai pwm
-      else
-        analogWrite(ledPin, 0);   // Diluar rentang tersebut LED akan mati
-    ...
+      struct readings x;
+    
+      for(;;){
+    
+        // Membaca suhu dari sensor DHT
+        x.temp = dht.readTemperature();
+    
+        // Membaca kelembapan dari sensor DHT
+        x.h = dht.readHumidity();
+    
+        // Mengirim data ke queue
+        xQueueSend(my_queue, &x, portMAX_DELAY);
+    
+        // Delay pembacaan sensor
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+      }
+    }
+    
+    // Task menampilkan data
+    void display(void *pvParameters){
+    
+      struct readings x;
+    
+      for(;;){
+    
+        // Menerima data dari queue
+        if(xQueueReceive(my_queue, &x, portMAX_DELAY) == pdPASS){
+    
+          // Menampilkan suhu
+          Serial.print("temp = ");
+          Serial.println(x.temp);
+    
+          // Menampilkan kelembapan
+          Serial.print("humidity = ");
+          Serial.println(x.h);
+    
+          Serial.println("----------------");
+        }
+      }
     }
     ```
